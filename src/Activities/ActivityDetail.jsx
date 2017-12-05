@@ -31,7 +31,9 @@ class ActivityDetail extends Component {
     constructor(props, context) {
         super(props, context);
         this.state = {
-            activity: {
+            typeOptions: ['Social', 'Religious', 'Sale', 'Artistic', 'Academic', 'Educational', 'Professional', 'Civic', 'Sports', 'Political'],
+            selectedType: {},
+             activity: {
                 _id: 0,
                 requestTitle: '',
                 activityDescription: '',
@@ -58,13 +60,14 @@ class ActivityDetail extends Component {
                 counselorDepartment: '',
                 counselorOfficeNumber: '',
                 requestDate: '',
+                 building: '',
                 facilities: {},
                 status: ''
             }
-
         }
         this.onApproval = this.onApproval.bind(this);
         this.onDenied = this.onDenied.bind(this);
+        this.onTypeSelected = this.onTypeSelected.bind(this);
     }
 
 
@@ -115,9 +118,7 @@ class ActivityDetail extends Component {
             studentAddressCountry: form.studentAddressCountry.value,
             studentAddressZipCode: form.studentAddressZipCode.value,
             studentTelephone: form.studentTelephone.value,
-            /*
-             building: this.state.selectedBuilding,
-             */
+            building: form.facilityBuilding.value,
             counselor: this.state.selectedCounselor,
             counselorTelephone: form.counselorTelephone.value,
             counselorFaculty: form.counselorFaculty.value,
@@ -199,7 +200,19 @@ class ActivityDetail extends Component {
         });
     }
 
+    onTypeSelected(event) {
+        const selectedType = this.state.typeOptions.filter(function (obj) {
+            return obj == event.target.value;
+        });
+        this.setState({selectedType: selectedType[0]});
+    }
+
     render() {
+
+        const typeOptions = this.state.typeOptions.map(option =>
+            <option value={option}>{option}</option>
+        );
+
         console.log(this.state.activity.status);
         return (
             <div className="container">
@@ -219,6 +232,7 @@ class ActivityDetail extends Component {
                         <p><b>Organization Initials:</b> {this.state.activity.organizationInitials}</p>
                         <br/>
                         <p><b>Requested Facility:</b> {this.state.activity.facilities.name}</p>
+                        <p><b>Building:</b> {this.state.activity.facilities.building}</p>
                         <p><b>Activity Description:</b> {this.state.activity.activityDescription}</p>
                         <p><b>Activity Guest(s):</b> {this.state.activity.activityGuest}</p>
                         <p><b>Activity Assistants:</b> {this.state.activity.activityAssistant}</p>
@@ -242,8 +256,32 @@ class ActivityDetail extends Component {
                         <div align="center">
                             <p><b>Status:</b> {this.state.activity.status}</p>
                             <p><b>Request Submission Date:</b> {this.state.activity.requestDate}</p>
+                            <p><b>Counselor Decision Date:</b> </p>
+                            <p><b>Facilities Manager Decision Date:</b></p><br />
+
                         </div>
 
+                        <Row>
+                        <Col sm={3}>
+                        <Col componentClass={ControlLabel}>Category: </Col>
+                            <FormControl componentClass="select" name="selectType"
+                                         onChange={this.onTypeSelected}
+                                         placeholder="select">
+                                <option>select</option>
+                                {typeOptions}
+
+                            </FormControl>
+                        </Col>
+                        </Row>
+                        <br />
+
+                        <Row>
+                            <Col sm={3}>
+                                <Col componentClass={ControlLabel}>Commentary: </Col>
+                                <FormControl componentClass="textarea" name="commentary" />
+                            </Col>
+                        </Row>
+                        <br />
 
                         <Row>
                             {(this.state.activity.status === 'pending')  ?

@@ -198,13 +198,16 @@ class Request extends Component {
         console.log("Event: " + event);
 
         var date = new Date(null);
-        date.setSeconds(event); // specify value for SECONDS here
-        var result = date.toISOString().substr(11, 5);
-/*
-        var result = date.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true});
-*/
-        console.log("Date: " + date);
-/*        var result = date.toLocaleString('en-US');*/
+        console.log("Date 1: " + date);
+        date.setSeconds(event); // Set event (in seconds) on the newly created date
+        console.log("Date 2: " + date);
+
+
+        var res = date.getTimezoneOffset()/60;
+
+        var newDate = new Date(date.getTime() + res*3600000);
+        console.log("Date 3: " + newDate);
+        var result = newDate.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
         console.log("Result: " + result);
         this.setState( {selectedStartTime : result} );
         this.setState( {startTime : event} );
@@ -214,27 +217,33 @@ class Request extends Component {
     onEndTimeSelected(event) {
         var date = new Date(null);
         date.setSeconds(event); // specify value for SECONDS here
-        var result = date.toISOString().substr(11, 5);
-        console.log("McTime: " + result);
+        var res = date.getTimezoneOffset()/60; //Gives me the hours to offset the time
+        var newDate = new Date(date.getTime() + res*3600000);
+        var result = newDate.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
+        console.log("Result: " + result);
         this.setState( {selectedEndTime : result} );
         this.setState( {endTime : event} );
     }
 
     onDateSelected(event) {
-/*            console.log("Date Changed");
-            console.log("Event: " + event);
-/!*            console.log(typeof(event));
-            const myDate = new Date();
-            console.log(typeof(new Date (event)));
-            console.log(typeof(myDate));*!/
+        console.log("Type Of: " + typeof(event));
+        var editedDate = event.substr(0,10);
+        console.log("editedDate: " + editedDate);
 
-            const selectedDate = new Date (event);
-            this.setState({selectedDate: selectedDate});
-            console.log("Selected Date: " + selectedDate);
-            console.log("Did you change?");
-            console.log("Activity Date: " + this.state.activityDate);*/
+        /*            console.log("Date Changed");
+                    console.log("Event: " + event);
+        /!*            console.log(typeof(event));
+                    const myDate = new Date();
+                    console.log(typeof(new Date (event)));
+                    console.log(typeof(myDate));*!/
 
-            this.setState({selectedDate: event});
+                    const selectedDate = new Date (event);
+                    this.setState({selectedDate: selectedDate});
+                    console.log("Selected Date: " + selectedDate);
+                    console.log("Did you change?");
+                    console.log("Activity Date: " + this.state.activityDate);*/
+
+        this.setState({selectedDate: editedDate});
     }
 
     render() {
@@ -460,7 +469,6 @@ class Request extends Component {
                                         {statusOptions}
                                     </FormControl>
                                 </Col>
-
                             </FormGroup>
                                 </Panel>
 
