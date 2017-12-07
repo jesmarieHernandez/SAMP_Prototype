@@ -132,7 +132,10 @@ class Request extends Component {
             building: form.facilityBuilding.value,
             organization: this.state.selectedOrganization,
             facilities: this.state.selectedFacilities,
-            status: this.state.selectedStatus
+            status: this.state.selectedStatus,
+            facilityManagerDecision: 'approved',
+            counselorDecision: 'approved',
+            dscaDecision: 'pending'
         };
         console.log(activityRequest);
         fetch('/api/activities', {
@@ -470,6 +473,7 @@ class Request extends Component {
                                     </FormControl>
                                 </Col>
                             </FormGroup>
+
                                 </Panel>
 
                             <ButtonToolbar>

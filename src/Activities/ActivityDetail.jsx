@@ -11,7 +11,7 @@ import {
 const PAGE_SIZE = 10;
 
 class ActivityDetail extends Component {
-    static dataFetcher({urlBase, location}) {
+/*    static dataFetcher({urlBase, location}) {
         const query = Object.assign({}, location.query);
         const pageStr = query._page;
         if (pageStr) {
@@ -26,14 +26,16 @@ class ActivityDetail extends Component {
         // });
         return {IssueList: {}};
 
-    }
+    }*/
 
     constructor(props, context) {
         super(props, context);
         this.state = {
             typeOptions: ['Social', 'Religious', 'Sale', 'Artistic', 'Academic', 'Educational', 'Professional', 'Civic', 'Sports', 'Political'],
             selectedType: {},
-             activity: {
+            commentary: '',
+
+            activity: {
                 _id: 0,
                 requestTitle: '',
                 activityDescription: '',
@@ -62,7 +64,10 @@ class ActivityDetail extends Component {
                 requestDate: '',
                  building: '',
                 facilities: {},
-                status: ''
+                status: '',
+                facilityManagerDecision: '',
+                counselorDecision: '',
+                dscaDecision: ''
             }
         }
         this.onApproval = this.onApproval.bind(this);
@@ -86,63 +91,35 @@ class ActivityDetail extends Component {
         })
     }
 
-    onSubmit(event) {
+    onApproval(event) {
         event.preventDefault();
 
-        console.log('Form was submitted');
+        console.log('Selected status: ' + this.state.selectedStatus);
 
-        //this.showValidation();
-
-        // if (Object.keys(this.state.invalidFields).length !== 0) {
-        //     return;
-        // }
-        const form = document.forms.activityRequest;
-
-        const activityRequest = {
-            requestTitle: form.requestTitle.value,
-            activityDescription: form.activityDescription.value,
-            activityGuest: form.activityGuest.value,
-            activityAssistant: form.activityAssistant.value,
-            selectedDate: this.state.selectedDate,
-            startTime: this.state.startTime,
-            endTime: this.state.endTime,
-            organization: this.state.selectedOrganization,
-            organizationInitials: form.organizationInitials.value,
-            requesterName: form.requesterName.value,
-            studentIdentificationNumber: form.studentIdentificationNumber.value,
-            studentRole: form.studentRole.value,
-            studentAddress1: form.studentAddress1.value,
-            studentAddress2: form.studentAddress2.value,
-            studentAddressCity: form.studentAddressCity.value,
-            studentAddressState: form.studentAddressState.value,
-            studentAddressCountry: form.studentAddressCountry.value,
-            studentAddressZipCode: form.studentAddressZipCode.value,
-            studentTelephone: form.studentTelephone.value,
-            building: form.facilityBuilding.value,
-            counselor: this.state.selectedCounselor,
-            counselorTelephone: form.counselorTelephone.value,
-            counselorFaculty: form.counselorFaculty.value,
-            counselorDepartment: form.counselorDepartment.value,
-            counselorOfficeNumber: form.counselorOfficeNumber.value,
-            requestDate: new Date(),
-            facilities: this.state.selectedFacilities,
-            status: this.state.selectedStatus
+        const activityUpdate = {
+            dscaComment: this.state.commentary,
+            dscaDecision: 'approved',
+            dscaActivityType: this.state.selectedType,
         };
 
+        this.setState({dscaDecision: 'approved'});
 
-        console.log(activityRequest);
-        fetch('/api/activities', {
+        console.log("DSCA Decision: " + this.state.dscaDecision);
+
+
+        console.log("Activity Update Object: " + activityUpdate);
+        fetch(`/api/activities/update/${this.state.activity._id}`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(activityRequest),
+            body: JSON.stringify(activityUpdate),
         }).then(response => {
             if (response.ok) {
                 console.log(response);
-                response.json().then(createdRequest => {
-                    console.log('Activity request was created successfully!');
-                    console.log('Activity request ID: ' + createdRequest._id);
+                response.json().then(updatedRequest => {
+                    console.log('Activity request was updated successfully!');
+                    console.log('Activity request ID: ' + updatedRequest._id);
 
-                    //this.props.router.push(`/activities/${createdRequest._id}`);
+                    this.props.router.push(`/activities/${updatedRequest._id}`);
                 })
             } else {
                 response.json().then(error => {
@@ -154,7 +131,44 @@ class ActivityDetail extends Component {
         });
     }
 
-    onApproval() {
+    onDenied(event) {
+        event.preventDefault();
+
+        console.log('Selected status: ' + this.state.selectedStatus);
+
+        const activityUpdate = {
+            dscaComment: this.state.commentary,
+            dscaDecision: 'denied',
+            dscaActivityType: this.state.selectedType,
+        };
+
+        this.setState({dscaDecision: 'denied'});
+
+        console.log(activityUpdate);
+        fetch(`/api/activities/update/${this.state.activity._id}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(activityUpdate),
+        }).then(response => {
+            if (response.ok) {
+                console.log(response);
+                response.json().then(updatedRequest => {
+                    console.log('Activity request was updated successfully!');
+                    console.log('Activity request ID: ' + updatedRequest._id);
+
+                    this.props.router.push(`/activities/${updatedRequest._id}`);
+                })
+            } else {
+                response.json().then(error => {
+                    //this.props.showError(`Failed to create request: ${error.message}`);
+                });
+            }
+        }).catch(err => {
+            //this.props.showError(`Error in sending data to server: ${err.message}`);
+        });
+    }
+
+/*    onApproval() {
         console.log("This thing was clicked");
 
         fetch(`/api/activities/${ this.state.activity._id}/approve`, {
@@ -198,13 +212,19 @@ class ActivityDetail extends Component {
         }).catch(err => {
             //this.props.showError(`Error in sending data to server: ${err.message}`);
         });
-    }
+    }*/
 
     onTypeSelected(event) {
+        console.log("Type here");
         const selectedType = this.state.typeOptions.filter(function (obj) {
             return obj == event.target.value;
         });
+/*
+        console.log("Selected Type: " + selectedType)
+*/
+
         this.setState({selectedType: selectedType[0]});
+
     }
 
     render() {
@@ -258,7 +278,6 @@ class ActivityDetail extends Component {
                             <p><b>Request Submission Date:</b> {this.state.activity.requestDate}</p>
                             <p><b>Counselor Decision Date:</b> </p>
                             <p><b>Facilities Manager Decision Date:</b></p><br />
-
                         </div>
 
                         <Row>
@@ -278,13 +297,13 @@ class ActivityDetail extends Component {
                         <Row>
                             <Col sm={3}>
                                 <Col componentClass={ControlLabel}>Commentary: </Col>
-                                <FormControl componentClass="textarea" name="commentary" />
+                                <FormControl componentClass="textarea" name="commentary"/>
                             </Col>
                         </Row>
                         <br />
 
                         <Row>
-                            {(this.state.activity.status === 'pending')  ?
+                            {(this.state.activity.dscaDecision === "pending" )  ?
                                 (<div>
                                     <Col md="1"><Link to={`/activities/`}><Button className="btn btn-primary">Back</Button></Link></Col>
                                     <Col md="1"><Button className="btn-success" onClick={this.onApproval}>Approve</Button></Col>
@@ -292,7 +311,7 @@ class ActivityDetail extends Component {
                                 </div>) :
                                 (<div>
                                     <Col md="1"><Link to={`/activities/`}><Button className="btn btn-primary">Back</Button></Link></Col>
-                                    <Col md="1"><Button>This activity has been {this.state.activity.status}.</Button></Col>
+                                    <Col md="1"><Button>This activity has been {this.state.activity.dscaDecision}.</Button></Col>
                                 </div>)
                             }
                         </Row>

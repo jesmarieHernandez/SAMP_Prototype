@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import 'isomorphic-fetch';
 import {Link} from 'react-router';
+import AlertContainer from 'react-alert';
 
 import {
     FormGroup, FormControl, ControlLabel, ButtonToolbar, Button,
@@ -11,7 +12,8 @@ import {
 const PAGE_SIZE = 10;
 
 class CreateFacilities extends Component {
-    static dataFetcher({urlBase, location}) {
+
+/*    static dataFetcher({urlBase, location}) {
         const query = Object.assign({}, location.query);
         const pageStr = query._page;
         if (pageStr) {
@@ -25,8 +27,7 @@ class CreateFacilities extends Component {
         //     return response.json().then(data => ({IssueList: data}));
         // });
         return {IssueList: {}};
-
-    }
+    }*/
 
 
     constructor(props, context) {
@@ -89,6 +90,7 @@ class CreateFacilities extends Component {
                     this.props.router.push(`/admin/facilities/${createdFacilities._id}/`);
 */
                     this.props.router.push(`/facilities/${createdFacilities._id}/`);
+
                 })
             } else {
                 response.json().then(error => {
@@ -101,7 +103,21 @@ class CreateFacilities extends Component {
     }
 
 
+    showSuccessAlert() {
+        console.log("Success Alert");
+        this.msg.success('Success! New facility created.', {time: 2000, type: 'success'});
+        console.log("Success Alert 2");
+        alert("Success");
+    }
+
     render() {
+        let alertOptions = {
+            offset: 14,
+            position: 'top-right',
+            theme: 'light',
+            time: 5000,
+            transition: 'scale'
+        }
 
         return (
             <div className="container">
@@ -152,7 +168,9 @@ class CreateFacilities extends Component {
 
                             <ButtonToolbar>
                                 <Col md={6}>
-                                    <Button bsStyle="primary" type="submit">
+                                    <AlertContainer ref={a => this.msg = a} {...alertOptions} />
+
+                                    <Button bsStyle="primary" type="submit" onClick={this.showSuccessAlert}>
                                         Submit </Button>
                                 </Col>
                             </ButtonToolbar>
